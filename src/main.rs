@@ -79,14 +79,6 @@ pub fn draw_buttons(window: Rc<RefCell<Window>>, buttons: &Vec<&Button>) {
 
 pub fn update_game(window: Rc<RefCell<Window>>, buttons: &Vec<&Button>) {
     buttons.iter().for_each(|button| {
-        let maybe_click_coordinates;
-        {
-            maybe_click_coordinates = window.borrow_mut().maybe_click_coordinates();
-        }
-        if let Ok(maybe_click_coordinates) = maybe_click_coordinates {
-            if button.click_in_hitbox(&maybe_click_coordinates) {
-                (button.action)();
-            }
-        }
+        button.action_on_click(window.clone());
     })
 }

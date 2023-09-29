@@ -1,7 +1,10 @@
 //! Hud button code
 
+use std::cell::RefCell;
+use std::rc::Rc;
 use crate::raylib_wrapper::draw_handle::{DrawHandle, DrawRectangle};
 use raylib::math::Vector2;
+use crate::raylib_wrapper::wrapper::Window;
 
 pub struct Button {
     pub rectangle: DrawRectangle,
@@ -22,7 +25,19 @@ impl Button {
         )
     }
 
-    pub fn click_in_hitbox(&self, coordinates: &Vector2) -> bool {
+    pub fn action_on_click(&self, window: Rc<RefCell<Window>>) {
+        let maybe_click_coordinates;
+        {
+            maybe_click_coordinates = window.borrow_mut().maybe_click_coordinates();
+        }
+        if let Ok(maybe_click_coordinates) = maybe_click_coordinates {
+            if self.click_in_hitbox(&maybe_click_coordinates) {
+                (self.action)();
+            }
+        }
+    }
+
+    fn click_in_hitbox(&self, coordinates: &Vector2) -> bool {
         coordinates.x >= self.rectangle.x
             && coordinates.x <= (self.rectangle.x + self.rectangle.width)
             && coordinates.y >= self.rectangle.y
