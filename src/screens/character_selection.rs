@@ -6,10 +6,16 @@ use crate::raylib_wrapper::wrapper::Window;
 use crate::{draw_buttons, update_game};
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::model::character::{Character, clad};
+use crate::model::game::Game;
+use crate::model::team::Team;
+use crate::screens::game::game;
 
 pub fn character_selection(window: Rc<RefCell<Window>>) {
     let back_action = Rc::new(RefCell::new(false));
 
+    let window_closure = window.clone();
+    let back_action_closure = back_action.clone();
     let crad_button = Button {
         rectangle: DrawRectangle {
             x: 50.0,
@@ -18,7 +24,10 @@ pub fn character_selection(window: Rc<RefCell<Window>>) {
             height: 50.0,
         },
         text: "Crad".to_string(),
-        action: Box::new(|| println!("TODO !")),
+        action: Box::new(move || {
+            *back_action_closure.borrow_mut() = true;
+            game(window_closure.clone(), create_game(clad()))
+        }),
     };
     let back_action_closure = back_action.clone();
     let back_button = Button {
@@ -39,5 +48,11 @@ pub fn character_selection(window: Rc<RefCell<Window>>) {
     while !window.clone().borrow_mut().window_should_close() && !*back_action.borrow() {
         draw_buttons(window.clone(), &buttons);
         update_game(window.clone(), &buttons);
+    }
+}
+
+fn create_game(character: Character) -> Game {
+    Game {
+        team: Team { characters: vec![character] },
     }
 }

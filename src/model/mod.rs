@@ -1,0 +1,10 @@
+pub mod character;
+pub mod equipement;
+pub mod game;
+pub mod team;
+pub mod weapon;
+pub mod helmet;
+pub mod chest;
+pub mod legs;
+pub mod shoes;
+pub mod skills;

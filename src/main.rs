@@ -8,6 +8,7 @@ use raylib::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+mod model;
 mod raylib_wrapper;
 mod screens;
 
