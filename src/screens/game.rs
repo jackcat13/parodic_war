@@ -18,17 +18,16 @@ pub fn draw(window: &Rc<RefCell<Window>>, game: &Game) {
     let mut window_borrow = window.borrow_mut();
     let mut draw_handle = window_borrow.begin_drawing();
     draw_handle.clear_background(Color::WHITE);
-    draw_handle.draw_text("TODO", 100, 100, 12, Color::BLACK);
 
-    game.team.characters.iter().for_each(|character| {
+    game.team.characters.first().iter().for_each(|character| {
         character.print_sprite(&mut draw_handle,
-                    DrawRectangle{
-                                    x: 0.0,
-                                    y: 0.0,
-                                    width: 100.0,
-                                    height: 100.0,
-                                },
-                                character.position,
-                                Color::WHITE);
+                               DrawRectangle{
+                                   x: 0.0,
+                                   y: 0.0,
+                                   width: 100.0,
+                                   height: 100.0,
+                               },
+                               character.position,
+                               Color::WHITE);
     });
 }
