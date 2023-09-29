@@ -6,6 +6,7 @@ use crate::raylib_wrapper::draw_handle::DrawHandle;
 use raylib::ffi::MouseButton;
 use raylib::math::Vector2;
 use raylib::{RaylibBuilder, RaylibHandle, RaylibThread};
+use raylib::prelude::Texture2D;
 
 pub struct Window {
     rl: RaylibHandle,
@@ -35,6 +36,13 @@ impl Window {
             Ok(self.rl.get_mouse_position())
         } else {
             Err("No click")
+        }
+    }
+
+    pub fn load_texture(&mut self, path: &str) -> Texture2D {
+        match self.rl.load_texture(&self.thread, path) {
+            Ok(texture) => { texture }
+            Err(error) => { panic!("Could not load sprite with following path : {}. It happened because of following error : {}", path, error); }
         }
     }
 }

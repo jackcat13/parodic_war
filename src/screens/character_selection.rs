@@ -6,7 +6,8 @@ use crate::raylib_wrapper::wrapper::Window;
 use crate::{draw_buttons, update_game};
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::model::character::{Character, clad};
+use raylib::math::Vector2;
+use crate::model::character::{Character, crad};
 use crate::model::game::Game;
 use crate::model::team::Team;
 use crate::screens::game::game;
@@ -26,7 +27,7 @@ pub fn character_selection(window: Rc<RefCell<Window>>) {
         text: "Crad".to_string(),
         action: Box::new(move || {
             *back_action_closure.borrow_mut() = true;
-            game(window_closure.clone(), create_game(clad()))
+            game(window_closure.clone(), create_game(crad(window_closure.clone(), Vector2{ x: 50.0, y: 50.0})))
         }),
     };
     let back_action_closure = back_action.clone();
