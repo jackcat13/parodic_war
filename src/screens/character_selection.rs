@@ -44,7 +44,7 @@ pub fn character_selection(window: Rc<RefCell<Window>>) {
         }),
     };
 
-    let buttons = vec![&crad_button, &back_button];
+    let buttons = vec![crad_button, back_button];
 
     while !window.clone().borrow_mut().window_should_close() && !*back_action.borrow() {
         draw_buttons(window.clone(), &buttons);

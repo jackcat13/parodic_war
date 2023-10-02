@@ -23,7 +23,7 @@ pub fn skills_tree(window: Rc<RefCell<Window>>) {
         }),
     };
 
-    let buttons = vec![&back_button];
+    let buttons = vec![back_button];
 
     while !window.clone().borrow_mut().window_should_close() && !*back_action.borrow() {
         draw(window.clone(), &buttons);

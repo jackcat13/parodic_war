@@ -45,6 +45,10 @@ impl Window {
             Err(error) => { panic!("Could not load sprite with following path : {}. It happened because of following error : {}", path, error); }
         }
     }
+
+    pub fn get_size(&self) -> (i32, i32) {
+        (self.rl.get_screen_width(), self.rl.get_screen_height())
+    }
 }
 
 pub struct WindowBuilder {

@@ -23,7 +23,7 @@ pub fn options(window: Rc<RefCell<Window>>) {
         }),
     };
 
-    let buttons = vec![&back_button];
+    let buttons = vec![back_button];
 
     while !window.clone().borrow_mut().window_should_close() && !*back_action.borrow() {
         draw(window.clone(), &buttons);
@@ -31,7 +31,7 @@ pub fn options(window: Rc<RefCell<Window>>) {
     }
 }
 
-pub fn draw(window: Rc<RefCell<Window>>, buttons: &Vec<&Button>) {
+pub fn draw(window: Rc<RefCell<Window>>, buttons: &Vec<Button>) {
     let mut window_borrow = window.borrow_mut();
     let mut draw_handle = window_borrow.begin_drawing();
     draw_handle.clear_background(Color::WHITE);
