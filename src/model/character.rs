@@ -1,9 +1,10 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use raylib::prelude::{Color, Texture2D, Vector2};
+use raylib::drawing::{RaylibDrawHandle, RaylibMode2D};
+use raylib::prelude::{Color, RaylibDraw, Rectangle, Texture2D, Vector2};
 use crate::model::equipement::Equipement;
 use crate::model::skills::Skill;
-use crate::raylib_wrapper::draw_handle::{DrawHandle, DrawRectangle};
+use crate::raylib_wrapper::draw_handle::DrawRectangle;
 use crate::raylib_wrapper::wrapper::Window;
 
 pub struct Character {
@@ -21,9 +22,19 @@ pub struct Character {
 
 impl Character {
 
-    pub fn print_sprite(&self, draw_handle: &mut DrawHandle, frame_rec: DrawRectangle, position: Vector2, color: Color) {
-        draw_handle.draw_sprite(&self.sprite, frame_rec, position, color)
+    pub fn print_sprite(&self, draw_handle: &mut RaylibMode2D<RaylibDrawHandle>, frame_rec: DrawRectangle, position: Vector2, color: Color) {
+        draw_sprite(&self.sprite, frame_rec, position, color, draw_handle)
     }
+}
+
+fn draw_sprite(sprite: &Texture2D, frame_rec: DrawRectangle, position: Vector2, color: Color, handler: &mut RaylibMode2D<RaylibDrawHandle>) {
+    let frame_rec = Rectangle {
+        x: frame_rec.x,
+        y: frame_rec.y,
+        width: frame_rec.width,
+        height: frame_rec.height,
+    };
+    handler.draw_texture_rec(sprite, frame_rec, position, color);
 }
 
 pub fn crad(window: Rc<RefCell<Window>>, position: Vector2) -> Character {
