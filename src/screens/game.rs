@@ -17,15 +17,15 @@ pub fn game(window: Rc<RefCell<Window>>, game: Game) {
 pub fn draw(window: &Rc<RefCell<Window>>, game: &Game) {
     let mut window_borrow = window.borrow_mut();
     let mut draw_handle = window_borrow.begin_drawing();
-    draw_handle.clear_background(Color::WHITE);
+    draw_handle.clear_background(Color::BROWN);
 
     game.team.characters.first().iter().for_each(|character| {
         character.print_sprite(&mut draw_handle,
                                DrawRectangle{
                                    x: 0.0,
                                    y: 0.0,
-                                   width: 100.0,
-                                   height: 100.0,
+                                   width: character.size.x,
+                                   height: character.size.y,
                                },
                                character.position,
                                Color::WHITE);

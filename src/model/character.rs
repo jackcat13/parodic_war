@@ -16,6 +16,7 @@ pub struct Character {
     pub skills: Vec<Skill>,
     pub sprite: Texture2D,
     pub position: Vector2,
+    pub size: Vector2,
 }
 
 impl Character {
@@ -42,5 +43,9 @@ pub fn crad(window: Rc<RefCell<Window>>, position: Vector2) -> Character {
         skills: vec![],
         sprite: window.borrow_mut().load_texture("./static/sprites/crad/crad.png"),
         position: position,
+        size: Vector2 {
+            x: 50.0,
+            y: 60.0,
+        },
     }
 }
