@@ -27,7 +27,7 @@ pub fn character_selection(window: Rc<RefCell<Window>>) {
         text: "Crad".to_string(),
         action: Box::new(move || {
             *back_action_closure.borrow_mut() = true;
-            game(window_closure.clone(), create_game(crad(window_closure.clone(), Vector2{ x: 50.0, y: 50.0})))
+            game(window_closure.clone(), Rc::new(RefCell::new(create_game(crad(window_closure.clone(), Vector2 { x: 50.0, y: 50.0 })))))
         }),
     };
     let back_action_closure = back_action.clone();

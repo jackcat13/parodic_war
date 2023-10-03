@@ -13,6 +13,7 @@ pub struct Character {
     pub mana: i32,
     pub armor: i32,
     pub damage: i32,
+    pub speed: i32,
     pub equipement: Equipement,
     pub skills: Vec<Skill>,
     pub sprite: Texture2D,
@@ -44,6 +45,7 @@ pub fn crad(window: Rc<RefCell<Window>>, position: Vector2) -> Character {
         mana: 30,
         armor: 10,
         damage: 30,
+        speed: 2,
         equipement: Equipement {
             weapon: None,
             helmet: None,

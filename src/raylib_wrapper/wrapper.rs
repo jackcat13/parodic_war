@@ -9,7 +9,7 @@ use raylib::{RaylibBuilder, RaylibHandle, RaylibThread};
 use raylib::prelude::Texture2D;
 
 pub struct Window {
-    rl: RaylibHandle,
+    pub rl: RaylibHandle,
     thread: RaylibThread,
 }
 
