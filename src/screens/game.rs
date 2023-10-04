@@ -2,7 +2,7 @@ use std::cell::{RefCell, RefMut};
 use std::rc::Rc;
 use raylib::color::Color;
 use raylib::prelude::{Camera2D, RaylibDraw, RaylibMode2DExt, Vector2};
-use raylib::prelude::KeyboardKey::{KEY_D, KEY_Q, KEY_S, KEY_Z};
+use raylib::prelude::KeyboardKey::{KEY_D, KEY_DOWN, KEY_Q, KEY_S, KEY_UP, KEY_Z};
 use crate::model::character::{Character, SPRITE_DOWN_LEFT, SPRITE_DOWN_RIGHT, SPRITE_DOWN_ROW, SPRITE_DOWN_UP, SPRITE_STAND_ROW};
 use crate::model::game::Game;
 use crate::raylib_wrapper::draw_handle::DrawRectangle;
@@ -14,12 +14,23 @@ pub fn game(window: Rc<RefCell<Window>>, game: Rc<RefCell<Game>>) {
         offset: Vector2 { x: monitor_width as f32 / 2.0, y: monitor_height as f32 / 2.0 },
         target: Vector2 { x: 0.0, y: 0.0 },
         rotation: 0.0,
-        zoom: 2.0,
+        zoom: 1.5,
     };
 
     while !window.clone().borrow_mut().window_should_close() {
         reprocess_coordinates(&game, window.clone());
+        reprocess_zoom(&mut camera, window.clone());
         draw(window.clone(), &game, &mut camera);
+    }
+}
+
+fn reprocess_zoom(camera: &mut Camera2D, window: Rc<RefCell<Window>>) {
+    let window_borrow = window.borrow_mut();
+    if window_borrow.rl.is_key_down(KEY_UP) {
+        camera.zoom += 0.1;
+    }
+    if window_borrow.rl.is_key_down(KEY_DOWN) && camera.zoom > 0.5 {
+        camera.zoom -= 0.1;
     }
 }
 
@@ -58,7 +69,10 @@ pub fn draw(window: Rc<RefCell<Window>>, game: &Rc<RefCell<Game>>, camera: &mut 
     mode_2d.clear_background(Color::GRAY);
 
     let character: &mut Character = game_borrow.team.characters.first_mut().unwrap();
-    camera.target = character.position;
+    camera.target = Vector2 {
+        x: character.position.x + (character.size.x/2.0),
+        y: character.position.y + (character.size.y/2.0),
+    };
     character.print_sprite(&mut mode_2d,
                            DrawRectangle{
                                x: 0.0,
