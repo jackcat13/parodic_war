@@ -1,5 +1,6 @@
 pub mod character;
 pub mod equipement;
+pub mod environment;
 pub mod game;
 pub mod team;
 pub mod weapon;

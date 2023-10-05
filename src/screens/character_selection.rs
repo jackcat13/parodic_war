@@ -8,6 +8,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use raylib::math::Vector2;
 use crate::model::character::{Character, crad};
+use crate::model::environment::Environment;
 use crate::model::game::Game;
 use crate::model::team::Team;
 use crate::screens::game::game;
@@ -27,7 +28,7 @@ pub fn character_selection(window: Rc<RefCell<Window>>) {
         text: "Crad".to_string(),
         action: Box::new(move || {
             *back_action_closure.borrow_mut() = true;
-            game(window_closure.clone(), Rc::new(RefCell::new(create_game(crad(window_closure.clone(), Vector2 { x: 50.0, y: 50.0 })))))
+            game(window_closure.clone(), Rc::new(RefCell::new(create_game(crad(window_closure.clone(), Vector2 { x: 50.0, y: 50.0 }), window_closure.clone()))))
         }),
     };
     let back_action_closure = back_action.clone();
@@ -52,8 +53,14 @@ pub fn character_selection(window: Rc<RefCell<Window>>) {
     }
 }
 
-fn create_game(character: Character) -> Game {
+fn create_game(character: Character, window: Rc<RefCell<Window>>) -> Game {
+    let mut window_borrow = window.borrow_mut();
+    let mut tree_texture = window_borrow.load_texture("./static/sprites/environment/tree.png");
+    tree_texture.width = 49; tree_texture.height = 70;
     Game {
         team: Team { characters: vec![character] },
+        environment: Environment {
+            tree_texture,
+        },
     }
 }

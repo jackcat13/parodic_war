@@ -65,14 +65,20 @@ pub fn draw(window: Rc<RefCell<Window>>, game: &Rc<RefCell<Game>>, camera: &mut 
     let mut draw_handle = window_borrow.begin_drawing();
     let mut mode_2d = draw_handle.raylib_draw_handle.begin_mode2D(*camera);
     let mut game_borrow = game.borrow_mut();
-
-    mode_2d.clear_background(Color::GRAY);
-
     let character: &mut Character = game_borrow.team.characters.first_mut().unwrap();
+
+    mode_2d.clear_background(Color::LIMEGREEN);
+
     camera.target = Vector2 {
         x: character.position.x + (character.size.x/2.0),
         y: character.position.y + (character.size.y/2.0),
     };
+
+    //Environment
+    let tree_texture = &game_borrow.environment.tree_texture;
+    mode_2d.draw_texture(tree_texture, 20, 20, Color::WHITE);
+
+    //Characters
     character.print_sprite(&mut mode_2d,
                            DrawRectangle{
                                x: 0.0,
@@ -82,6 +88,4 @@ pub fn draw(window: Rc<RefCell<Window>>, game: &Rc<RefCell<Game>>, camera: &mut 
                            },
                            character.position,
                            Color::WHITE);
-
-    mode_2d.draw_text("test", 20, 20, 12, Color::BLACK);
 }
