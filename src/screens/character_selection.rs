@@ -8,7 +8,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use raylib::math::Vector2;
 use crate::model::character::{Character, crad};
-use crate::model::environment::Environment;
 use crate::model::game::Game;
 use crate::model::team::Team;
 use crate::screens::game::game;
@@ -59,8 +58,5 @@ fn create_game(character: Character, window: Rc<RefCell<Window>>) -> Game {
     tree_texture.width = 49; tree_texture.height = 70;
     Game {
         team: Team { characters: vec![character] },
-        environment: Environment {
-            tree_texture,
-        },
     }
 }
