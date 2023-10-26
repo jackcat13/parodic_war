@@ -5,26 +5,29 @@ use raylib::prelude::{Camera2D, RaylibDraw, RaylibMode2DExt, Vector2};
 use raylib::prelude::KeyboardKey::{KEY_D, KEY_DOWN, KEY_Q, KEY_S, KEY_UP, KEY_Z};
 use crate::model::character::{Character, SPRITE_DOWN_LEFT, SPRITE_DOWN_RIGHT, SPRITE_DOWN_ROW, SPRITE_DOWN_UP, SPRITE_STAND_ROW};
 use crate::model::game::Game;
+use crate::model::world::World;
+use crate::procedural::world::generate_random_world;
 use crate::raylib_wrapper::draw_handle::DrawRectangle;
 use crate::raylib_wrapper::wrapper::Window;
 
 pub fn game(window: Rc<RefCell<Window>>, game: Rc<RefCell<Game>>) {
-    let (monitor_width, monitor_height) = window.clone().borrow_mut().get_size();
+    let random_world = generate_random_world(&window);
+    let (monitor_width, monitor_height) = &window.borrow_mut().get_size();
     let mut camera: Camera2D = Camera2D {
-        offset: Vector2 { x: monitor_width as f32 / 2.0, y: monitor_height as f32 / 2.0 },
+        offset: Vector2 { x: *monitor_width as f32 / 2.0, y: *monitor_height as f32 / 2.0 },
         target: Vector2 { x: 0.0, y: 0.0 },
         rotation: 0.0,
         zoom: 1.5,
     };
 
-    while !window.clone().borrow_mut().window_should_close() {
-        reprocess_coordinates(&game, window.clone());
-        reprocess_zoom(&mut camera, window.clone());
-        draw(window.clone(), &game, &mut camera);
+    while !&window.borrow_mut().window_should_close() {
+        reprocess_coordinates(&game, &window);
+        reprocess_zoom(&mut camera, &window);
+        draw(&window, &game, &mut camera, &random_world);
     }
 }
 
-fn reprocess_zoom(camera: &mut Camera2D, window: Rc<RefCell<Window>>) {
+fn reprocess_zoom(camera: &mut Camera2D, window: &Rc<RefCell<Window>>) {
     let window_borrow = window.borrow_mut();
     if window_borrow.rl.is_key_down(KEY_UP) {
         camera.zoom += 0.1;
@@ -34,7 +37,7 @@ fn reprocess_zoom(camera: &mut Camera2D, window: Rc<RefCell<Window>>) {
     }
 }
 
-fn reprocess_coordinates(game: &Rc<RefCell<Game>>, window: Rc<RefCell<Window>>) {
+fn reprocess_coordinates(game: &Rc<RefCell<Game>>, window: &Rc<RefCell<Window>>) {
     let window_borrow = window.borrow_mut();
     let mut game_borrow = game.borrow_mut();
     check_movement(game_borrow.team.characters.first_mut().unwrap(), window_borrow);
@@ -60,23 +63,25 @@ fn check_movement(character: &mut Character, window_borrow: RefMut<Window>) {
     }
 }
 
-pub fn draw(window: Rc<RefCell<Window>>, game: &Rc<RefCell<Game>>, camera: &mut Camera2D) {
+fn draw(window: &Rc<RefCell<Window>>, game: &Rc<RefCell<Game>>, camera: &mut Camera2D, random_world: &World) {
     let mut window_borrow = window.borrow_mut();
     let mut draw_handle = window_borrow.begin_drawing();
     let mut mode_2d = draw_handle.raylib_draw_handle.begin_mode2D(*camera);
     let mut game_borrow = game.borrow_mut();
     let character: &mut Character = game_borrow.team.characters.first_mut().unwrap();
 
-    mode_2d.clear_background(Color::LIMEGREEN);
-
     camera.target = Vector2 {
         x: character.position.x + (character.size.x/2.0),
         y: character.position.y + (character.size.y/2.0),
     };
 
-    //Environment
-    let tree_texture = &game_borrow.environment.tree_texture;
-    mode_2d.draw_texture(tree_texture, 20, 20, Color::WHITE);
+    //Clear
+    mode_2d.clear_background(Color::LIMEGREEN);
+
+    //Items
+    random_world.items.iter().for_each(|item| {
+        mode_2d.draw_texture(&item.sprite.texture, item.position.x as i32, item.position.y as i32, Color::WHITE);
+    });
 
     //Characters
     character.print_sprite(&mut mode_2d,

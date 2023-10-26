@@ -10,6 +10,7 @@ use std::rc::Rc;
 use raylib::ffi::MaximizeWindow;
 
 mod model;
+mod procedural;
 mod raylib_wrapper;
 mod screens;
 

@@ -60,7 +60,7 @@ pub fn crad(window: Rc<RefCell<Window>>, position: Vector2) -> Character {
         mana: 30,
         armor: 10,
         damage: 30,
-        speed: 2,
+        speed: 20,
         equipement: Equipement {
             weapon: None,
             helmet: None,
