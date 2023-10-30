@@ -3,7 +3,7 @@ use std::rc::Rc;
 use rand::Rng;
 use raylib::ffi::Vector2;
 use crate::model::character::Sprite;
-use crate::model::item::Item;
+use crate::model::item::{DroppedItem, Item};
 use crate::model::item::ItemType::{STONE, TREE};
 use crate::model::world::World;
 use crate::raylib_wrapper::wrapper::Window;
@@ -20,6 +20,7 @@ const TREE_REC: Vector2 = Vector2 { x: 50.0, y: 100.0 };
 
 pub fn generate_random_world (window: &Rc<RefCell<Window>>) -> World {
     let mut items: Vec<Item> = vec![];
+    let mut dropped_items: Vec<DroppedItem> = vec![];
     let mut rng = rand::thread_rng();
     for _ in 1..CASUAL_ITEMS_NUMBER {
         let mut window_borrow = window.borrow_mut();
@@ -36,6 +37,7 @@ pub fn generate_random_world (window: &Rc<RefCell<Window>>) -> World {
                 row_direction: 0,
             },
             size: STONE_REC,
+            hp: 3,
         });
         items.push(Item {
             item_type: TREE,
@@ -46,9 +48,11 @@ pub fn generate_random_world (window: &Rc<RefCell<Window>>) -> World {
                 row_direction: 0,
             },
             size: TREE_REC,
+            hp: 5,
         });
     }
     World {
         items,
+        dropped_items,
     }
 }
