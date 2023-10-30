@@ -1,7 +1,7 @@
 use std::cell::{RefCell, RefMut};
 use std::rc::Rc;
 use raylib::color::Color;
-use raylib::prelude::{Camera2D, MouseButton, RaylibDraw, RaylibMode2DExt, Vector2};
+use raylib::prelude::{Camera2D, MouseButton, RaylibDraw, RaylibMode2DExt, RaylibTexture2D, Rectangle, Vector2};
 use raylib::prelude::KeyboardKey::{KEY_D, KEY_DOWN, KEY_Q, KEY_S, KEY_UP, KEY_Z};
 use crate::model::character::{Character, SPRITE_DOWN_LEFT, SPRITE_DOWN_RIGHT, SPRITE_DOWN_ROW, SPRITE_DOWN_UP, SPRITE_STAND_ROW};
 use crate::model::game::Game;
@@ -12,7 +12,7 @@ use crate::raylib_wrapper::draw_handle::DrawRectangle;
 use crate::raylib_wrapper::wrapper::Window;
 
 pub fn game(window: Rc<RefCell<Window>>, game: Rc<RefCell<Game>>) {
-    let random_world = generate_random_world(&window);
+    let mut random_world = generate_random_world(&window);
     let mut window_borrow = window.borrow_mut();
     let (monitor_width, monitor_height) = &window_borrow.get_size();
     let mut camera: Camera2D = Camera2D {
@@ -27,7 +27,7 @@ pub fn game(window: Rc<RefCell<Window>>, game: Rc<RefCell<Game>>) {
         camera.offset = Vector2 { x: *monitor_width as f32 / 2.0, y: *monitor_height as f32 / 2.0 };
         reprocess_coordinates(&game, &window_borrow);
         reprocess_zoom(&mut camera, &window_borrow);
-        process_actions(&window_borrow, &random_world, &camera);
+        process_actions(&window_borrow, &mut random_world, &camera);
         draw(&mut window_borrow, &game, &mut camera, &random_world);
     }
 }
@@ -66,23 +66,25 @@ fn check_movement(character: &mut Character, window_borrow: &RefMut<Window>) {
     }
 }
 
-fn process_actions(window: &RefMut<Window>, random_world: &World, camera: &Camera2D) {
-    if window.rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
-        let cursor_position = window.rl.get_screen_to_world2D(window.rl.get_mouse_position(), camera);
-        println!("{}::{}", cursor_position.x, cursor_position.y);
-        random_world.items.iter().for_each(|item| {
-            if is_item_collision(cursor_position.x, cursor_position.y, item) {
+fn process_actions(window: &RefMut<Window>, random_world: &mut World, camera: &Camera2D) {
+    let cursor_position = window.rl.get_screen_to_world2D(window.rl.get_mouse_position(), camera);
+    random_world.items.iter_mut().for_each(|item| {
+        if is_item_collision(cursor_position.x, cursor_position.y, item) {
+            item.sprite.offset = 1;
+            if window.rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
                 println!("Cursor : {}::{} /// HIT item : {:?}", cursor_position.x, cursor_position.y, item);
             }
-        })
-    }
+        } else {
+            item.sprite.offset = 0;
+        }
+    })
 }
 
 fn is_item_collision(cursor_relative_x: f32, cursor_relative_y: f32, item: &Item) -> bool {
     cursor_relative_x >= item.position.x
-        && cursor_relative_x <= item.position.x + item.sprite.texture.width as f32
+        && cursor_relative_x <= item.position.x + item.size.x
         && cursor_relative_y >= item.position.y
-        && cursor_relative_y <= item.position.y + item.sprite.texture.height as f32
+        && cursor_relative_y <= item.position.y + item.size.y
 }
 
 fn draw(window: &mut RefMut<Window>, game: &Rc<RefCell<Game>>, camera: &mut Camera2D, random_world: &World) {
@@ -101,7 +103,13 @@ fn draw(window: &mut RefMut<Window>, game: &Rc<RefCell<Game>>, camera: &mut Came
 
     //Items
     random_world.items.iter().for_each(|item| {
-        mode_2d.draw_texture(&item.sprite.texture, item.position.x as i32, item.position.y as i32, Color::WHITE);
+        let frame_rec = Rectangle {
+            x: item.size.x * item.sprite.offset as f32,
+            y: 0.0,
+            width: item.size.x,
+            height: item.size.y,
+        };
+        mode_2d.draw_texture_rec(&item.sprite.texture,frame_rec, item.position, Color::WHITE);
     });
 
     //Characters
@@ -114,6 +122,4 @@ fn draw(window: &mut RefMut<Window>, game: &Rc<RefCell<Game>>, camera: &mut Came
                            },
                            character.position,
                            Color::WHITE);
-
-    mode_2d.draw_rectangle(0, 0, 50, 50, Color::WHITE);
 }

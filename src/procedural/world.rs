@@ -13,8 +13,10 @@ const X_MAX: f32 = 10000.0;
 const Y_MIN: f32 = -10000.0;
 const Y_MAX: f32 = 10000.0;
 const CASUAL_ITEMS_NUMBER: i32 = 300;
-const STONE_SIZE: Vector2 = Vector2 { x: 25.0, y: 30.0 };
-const TREE_SIZE: Vector2 = Vector2 { x: 50.0, y: 100.0 };
+const STONE_SIZE: Vector2 = Vector2 { x: 50.0, y: 30.0 };
+const STONE_REC: Vector2 = Vector2 { x: 25.0, y: 30.0 };
+const TREE_SIZE: Vector2 = Vector2 { x: 100.0, y: 100.0 };
+const TREE_REC: Vector2 = Vector2 { x: 50.0, y: 100.0 };
 
 pub fn generate_random_world (window: &Rc<RefCell<Window>>) -> World {
     let mut items: Vec<Item> = vec![];
@@ -33,7 +35,7 @@ pub fn generate_random_world (window: &Rc<RefCell<Window>>) -> World {
                 offset: 0,
                 row_direction: 0,
             },
-            size: STONE_SIZE,
+            size: STONE_REC,
         });
         items.push(Item {
             item_type: TREE,
@@ -43,7 +45,7 @@ pub fn generate_random_world (window: &Rc<RefCell<Window>>) -> World {
                 offset: 0,
                 row_direction: 0,
             },
-            size: TREE_SIZE,
+            size: TREE_REC,
         });
     }
     World {
