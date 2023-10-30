@@ -3,6 +3,7 @@ use std::rc::Rc;
 use raylib::drawing::{RaylibDrawHandle, RaylibMode2D};
 use raylib::prelude::{Color, RaylibDraw, Rectangle, Texture2D, Vector2};
 use crate::model::equipement::Equipement;
+use crate::model::item::Item;
 use crate::model::skills::Skill;
 use crate::raylib_wrapper::draw_handle::DrawRectangle;
 use crate::raylib_wrapper::wrapper::Window;
@@ -26,6 +27,7 @@ pub struct Character {
     pub sprite: Sprite,
     pub position: Vector2,
     pub size: Vector2,
+    pub range: i32,
 }
 
 const SPRITE_COLUMNS: i32 = 9;
@@ -38,9 +40,17 @@ pub const SPRITE_DOWN_UP: i32 = 240;
 impl Character {
 
     pub fn print_sprite(&mut self, draw_handle: &mut RaylibMode2D<RaylibDrawHandle>, frame_rec: DrawRectangle, position: Vector2, color: Color) {
+        let charcter_center_x = (self.position.x + self.size.x/2.0) as i32;
+        let charcter_center_y = (self.position.y + self.size.y/2.0) as i32;
         if self.sprite.offset > SPRITE_COLUMNS { self.sprite.offset = 0 };
         draw_sprite(&self.sprite, frame_rec, position, color, draw_handle);
+        draw_handle.draw_circle_lines(charcter_center_x, charcter_center_y, self.range as f32, Color::YELLOW);
         self.sprite.offset += 1;
+    }
+
+    pub(crate) fn is_player_in_range(&self, item: &mut Item) -> bool {
+        (self.position.x - item.position.x).abs() <= self.range as f32
+            && (self.position.y - item.position.y).abs() <= self.range as f32
     }
 }
 
@@ -80,5 +90,6 @@ pub fn crad(window: Rc<RefCell<Window>>, position: Vector2) -> Character {
             x: 50.0,
             y: 60.0,
         },
+        range: 80,
     }
 }

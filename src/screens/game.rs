@@ -1,15 +1,17 @@
 use std::cell::{RefCell, RefMut};
 use std::rc::Rc;
 use raylib::color::Color;
-use raylib::prelude::{Camera2D, MouseButton, RaylibDraw, RaylibMode2DExt, RaylibTexture2D, Rectangle, Vector2};
+use raylib::prelude::{Camera2D, MouseButton, RaylibDraw, RaylibMode2DExt, Rectangle, Vector2};
 use raylib::prelude::KeyboardKey::{KEY_D, KEY_DOWN, KEY_Q, KEY_S, KEY_UP, KEY_Z};
-use crate::model::character::{Character, SPRITE_DOWN_LEFT, SPRITE_DOWN_RIGHT, SPRITE_DOWN_ROW, SPRITE_DOWN_UP, SPRITE_STAND_ROW};
+use crate::model::character::{Character, Sprite, SPRITE_DOWN_LEFT, SPRITE_DOWN_RIGHT, SPRITE_DOWN_ROW, SPRITE_DOWN_UP, SPRITE_STAND_ROW};
 use crate::model::game::Game;
-use crate::model::item::Item;
+use crate::model::item::{DroppedItem, DroppedItemType, Item, ItemType};
 use crate::model::world::World;
 use crate::procedural::world::generate_random_world;
 use crate::raylib_wrapper::draw_handle::DrawRectangle;
 use crate::raylib_wrapper::wrapper::Window;
+
+const DROPPED_ITEM_SIZE: raylib::ffi::Vector2 = raylib::ffi::Vector2 { x: 50.0, y: 50.0 };
 
 pub fn game(window: Rc<RefCell<Window>>, game: Rc<RefCell<Game>>) {
     let mut random_world = generate_random_world(&window);
@@ -27,7 +29,8 @@ pub fn game(window: Rc<RefCell<Window>>, game: Rc<RefCell<Game>>) {
         camera.offset = Vector2 { x: *monitor_width as f32 / 2.0, y: *monitor_height as f32 / 2.0 };
         reprocess_coordinates(&game, &window_borrow);
         reprocess_zoom(&mut camera, &window_borrow);
-        process_actions(&window_borrow, &mut random_world, &camera);
+        process_actions(&mut window_borrow, &mut random_world, &camera, &game);
+        check_items(&mut window_borrow, &mut random_world, &camera);
         draw(&mut window_borrow, &game, &mut camera, &random_world);
     }
 }
@@ -66,18 +69,53 @@ fn check_movement(character: &mut Character, window_borrow: &RefMut<Window>) {
     }
 }
 
-fn process_actions(window: &RefMut<Window>, random_world: &mut World, camera: &Camera2D) {
+fn process_actions(window: &mut RefMut<Window>, random_world: &mut World, camera: &Camera2D, game: &Rc<RefCell<Game>>) {
+    let mut game_borrow = game.borrow_mut();
+    let character: &mut Character = game_borrow.team.characters.first_mut().unwrap();
     let cursor_position = window.rl.get_screen_to_world2D(window.rl.get_mouse_position(), camera);
     random_world.items.iter_mut().for_each(|item| {
         if is_item_collision(cursor_position.x, cursor_position.y, item) {
             item.sprite.offset = 1;
             if window.rl.is_mouse_button_pressed(MouseButton::MOUSE_BUTTON_LEFT) {
-                println!("Cursor : {}::{} /// HIT item : {:?}", cursor_position.x, cursor_position.y, item);
+                if character.is_player_in_range(item) {
+                    println!("Cursor : {}::{} /// HIT item : {:?}", cursor_position.x, cursor_position.y, item);
+                    item.hp -= 1;
+                }
             }
         } else {
             item.sprite.offset = 0;
         }
-    })
+    });
+}
+
+fn check_items(window: &mut RefMut<Window>, random_world: &mut World, camera: &Camera2D) {
+    let mut indexes = vec![];
+    let mut index: usize = 0;
+    random_world.items.iter_mut()
+        .for_each(|item| {
+            if item.hp <= 0 {
+                let mut tree_log_texture = match item.item_type {
+                    ItemType::TREE => window.load_texture("./static/sprites/environment/treeLog.png"),
+                    ItemType::STONE => window.load_texture("./static/sprites/ore/crushedStone.png"),
+                };
+                tree_log_texture.height = DROPPED_ITEM_SIZE.y as i32; tree_log_texture.width = DROPPED_ITEM_SIZE.x as i32;
+                random_world.dropped_items.push(DroppedItem {
+                    item_type: DroppedItemType::TREE,
+                    position: item.position.clone(),
+                    sprite: Sprite {
+                        texture: tree_log_texture,
+                        offset: 0,
+                        row_direction: 0,
+                    },
+                    size: DROPPED_ITEM_SIZE,
+                });
+                indexes.push(index);
+            }
+            index += 1;
+        });
+    indexes.iter().for_each(|i| {
+        random_world.items.remove(i.clone());
+    });
 }
 
 fn is_item_collision(cursor_relative_x: f32, cursor_relative_y: f32, item: &Item) -> bool {
@@ -110,6 +148,17 @@ fn draw(window: &mut RefMut<Window>, game: &Rc<RefCell<Game>>, camera: &mut Came
             height: item.size.y,
         };
         mode_2d.draw_texture_rec(&item.sprite.texture,frame_rec, item.position, Color::WHITE);
+    });
+
+    //DrppedItems
+    random_world.dropped_items.iter().for_each(|dropped_item| {
+        let frame_rec = Rectangle {
+            x: dropped_item.size.x * dropped_item.sprite.offset as f32,
+            y: 0.0,
+            width: dropped_item.size.x,
+            height: dropped_item.size.y,
+        };
+        mode_2d.draw_texture_rec(&dropped_item.sprite.texture, frame_rec, dropped_item.position, Color::WHITE);
     });
 
     //Characters
