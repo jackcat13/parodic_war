@@ -10,7 +10,7 @@ use raylib::prelude::Texture2D;
 
 pub struct Window {
     pub rl: RaylibHandle,
-    thread: RaylibThread,
+    pub(crate) thread: RaylibThread,
 }
 
 impl Window {
