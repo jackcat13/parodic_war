@@ -7,6 +7,7 @@ use crate::model::skills::Skill;
 use crate::raylib_wrapper::draw_handle::DrawRectangle;
 use crate::raylib_wrapper::wrapper::Window;
 
+#[derive(Debug)]
 pub struct Sprite {
     pub texture: Texture2D,
     pub offset: i32,
